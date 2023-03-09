@@ -66,32 +66,23 @@ client = mlflow.MlflowClient()
 run_id = client.get_latest_versions(model_name, stages=["Production"])[0].run_id
 model_version = client.get_latest_versions(model_name, stages=["Production"])[0].version
 print(run_id)
-
 # COMMAND ----------
-
 # Set access token and organization URL variables by retrieving values from Secrets scope
 access_token = dbutils.secrets.get(scope = "solution-accelerator-cicd", key = "azure_devops_access_token")
 organization_url = dbutils.secrets.get(scope = "solution-accelerator-cicd", key = "azure_devops_organization_url") 
 azure_devops_project = dbutils.secrets.get(scope = "solution-accelerator-cicd", key = "azure_devops_project") 
 azure_devops_pipeline_id = "3" # enter your own pipeline id here. When you navigate to the pipeline page in Azure DevOps, this number is available in the url as definitionId. For instance, our pipeline url ended with `?definitionId=3`
-
 # Create a connection to the Azure DevOps Org
 credentials = BasicAuthentication('', access_token)
 connection = Connection(base_url=organization_url, creds=credentials)
-
 # Create a pipeline client
 pipeline_client = connection.clients_v6_0.get_pipelines_client()
-
 # Define parameters that will be passed to the pipeline
 run_parameters = RunPipelineParameters(template_parameters = {"run_id":run_id, "model_version":model_version, "databricks_host": databricks_host, "databricks_token": databricks_token})
-
 # Trigger pipeline
 runPipeline = pipeline_client.run_pipeline(run_parameters=run_parameters,project=azure_devops_project, pipeline_id=azure_devops_pipeline_id)
 print("Pipeline has been triggered")
-
-
 # COMMAND ----------
-
 # MAGIC %md
 # MAGIC Once the job gets created, you can open the job details in Databricks UI and capture the Job ID located on the top right corner of the window. This Job ID will be used in the next section.
 # MAGIC 
